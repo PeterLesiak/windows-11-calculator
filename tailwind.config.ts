@@ -8,23 +8,20 @@ const Config: Config = {
   ],
   theme: {
     colors: {
-      red: '#c42b1c',
+      red: '#C42B1C',
 
       light: {
-        100: '#ffffff',
+        100: '#FFFFFF',
       },
 
       dark: {
-        600: '#363636',
+        500: '#363636',
+        600: '#2D2D2D',
         700: '#202020',
       },
     },
 
     extend: {
-      borderRadius: {
-        md: '10px',
-      },
-
       dropShadow: {
         '5xl': '0 45px 35px rgba(0, 0, 0, 0.4)',
       },

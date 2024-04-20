@@ -15,9 +15,9 @@ export interface CalculatorProperties {
 
 export const configuration = {
   minimumWidth: 322,
-  minimumHeight: 508,
+  minimumHeight: 503,
   width: 322,
-  height: 508,
+  height: 503,
   x: 0,
   y: 0,
   color: 'hsl(358, 63%, 51%)',
@@ -68,7 +68,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       disableDragging={!draggable}
     >
       <div
-        className="h-full w-full cursor-default select-none rounded-lg border border-dark-600 bg-dark-700 drop-shadow-5xl"
+        className="h-full w-full cursor-default select-none rounded-lg border border-dark-500 bg-dark-700 drop-shadow-5xl"
         ref={calculatorRef}
       >
         <div className="flex h-8 pl-[17px]" ref={toolbarRef}>
@@ -79,7 +79,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             Calculator
           </div>
           <div className="ml-auto grid [grid-template-columns:repeat(3,1fr)]">
-            <div className="flex w-[46px] hover:bg-dark-600">
+            <div className="flex w-[46px] hover:bg-dark-500">
               <Image
                 className="m-auto invert"
                 src="/icons/minimize.png"
@@ -88,7 +88,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
                 alt="Minimize Icon"
               />
             </div>
-            <div className="flex hover:bg-dark-600">
+            <div className="flex hover:bg-dark-500">
               <Image
                 className="m-auto invert"
                 src="/icons/square.png"
@@ -106,6 +106,37 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
                 alt="Close Icon"
               />
             </div>
+          </div>
+        </div>
+
+        <div className="mt-[7.5px] flex pl-1 pr-2">
+          <div className="mb-auto mt-auto flex h-9 w-10 rounded-md hover:bg-dark-600">
+            <Image
+              className="m-auto"
+              src="/icons/hamburger menu.png"
+              width={17}
+              height={17}
+              alt="Toogle Menu Icon"
+            />
+          </div>
+          <div className="mb-auto ml-1 mt-auto h-8 text-xl text-light-100">Standard</div>
+          <div className="mb-auto ml-2 mt-auto flex h-8 w-8 rounded-md transition-colors hover:bg-dark-600">
+            <Image
+              className="m-auto"
+              src="/icons/keep on top.png"
+              width={16}
+              height={16}
+              alt="Keep On Top Icon"
+            />
+          </div>
+          <div className="mb-auto ml-auto mt-auto flex h-8 w-8 rounded-md transition-colors hover:bg-dark-600">
+            <Image
+              className="m-auto"
+              src="/icons/history.png"
+              width={20}
+              height={20}
+              alt="Toogle History Icon"
+            />
           </div>
         </div>
       </div>
