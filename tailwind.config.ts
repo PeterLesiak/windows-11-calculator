@@ -7,10 +7,20 @@ const Config: Config = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    colors: {
+      dark: {
+        600: '#383838',
+        700: '#202020',
+      },
+    },
+
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      borderRadius: {
+        md: '10px',
+      },
+
+      dropShadow: {
+        '5xl': '0 45px 35px rgba(0, 0, 0, 0.4)',
       },
     },
   },
