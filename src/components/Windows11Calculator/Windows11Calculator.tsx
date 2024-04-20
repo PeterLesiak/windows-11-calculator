@@ -17,7 +17,7 @@ export const configuration = {
   minimumWidth: 322,
   minimumHeight: 503,
   width: 322,
-  height: 503,
+  height: 500,
   x: 0,
   y: 0,
   color: 'hsl(358, 63%, 51%)',
@@ -68,12 +68,12 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       disableDragging={!draggable}
     >
       <div
-        className="h-full w-full cursor-default select-none rounded-lg border border-dark-500 bg-dark-700 drop-shadow-5xl"
+        className="h-full w-full cursor-default select-none rounded-lg border-[1.5px] border-dark-500 bg-dark-700 drop-shadow-5xl"
         ref={calculatorRef}
       >
         <div className="flex h-8 pl-[17px]" ref={toolbarRef}>
           <div className="mb-auto mt-auto">
-            <Image src="/icons/calculator.png" width={17} height={18} alt="Calculator Icon" />
+            <Image src="/icons/calculator.png" width={17} height={17} alt="Calculator Icon" />
           </div>
           <div className="mb-auto ml-[14px] mt-auto text-xs font-thin tracking-wide text-light-100">
             Calculator
@@ -119,13 +119,15 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
               alt="Toogle Menu Icon"
             />
           </div>
-          <div className="mb-auto ml-1 mt-auto h-8 text-xl text-light-100">Standard</div>
+          <div className="mb-auto ml-1 mt-auto h-8 text-xl font-medium tracking-[0.015em] text-light-100">
+            Standard
+          </div>
           <div className="mb-auto ml-2 mt-auto flex h-8 w-8 rounded-md transition-colors hover:bg-dark-600">
             <Image
               className="m-auto"
               src="/icons/keep on top.png"
-              width={16}
-              height={16}
+              width={18}
+              height={18}
               alt="Keep On Top Icon"
             />
           </div>
@@ -137,6 +139,13 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
               height={20}
               alt="Toogle History Icon"
             />
+          </div>
+        </div>
+
+        <div className="mt-[4px] flex flex-col">
+          <div className="flex h-5 justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-dark-200"></div>
+          <div className="mt-[7px] flex justify-end gap-x-[9px] pr-3 text-5xl font-medium tracking-[0.0015em] text-light-100">
+            <span>0</span>
           </div>
         </div>
       </div>
