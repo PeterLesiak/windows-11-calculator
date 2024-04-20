@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 
-const windows11Font = localFont({ src: '../../public/fonts/SegoeUIVF.woff2', weight: '500' });
+const windows11Font = localFont({ src: '../../public/fonts/SegoeUIVF.woff2' });
 
 export const metadata: Metadata = {
   title: 'Windows 11 Calculator',

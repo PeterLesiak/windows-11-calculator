@@ -8,8 +8,14 @@ const Config: Config = {
   ],
   theme: {
     colors: {
+      red: '#c42b1c',
+
+      light: {
+        100: '#ffffff',
+      },
+
       dark: {
-        600: '#383838',
+        600: '#363636',
         700: '#202020',
       },
     },
