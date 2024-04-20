@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .memory-active {
+    @apply text-light-100 hover:bg-dark-600;
+  }
+}

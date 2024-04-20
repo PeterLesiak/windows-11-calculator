@@ -1,9 +1,11 @@
 'use client';
 
-import Image from 'next/image';
 import { useRef, useState, useEffect, type ReactElement } from 'react';
+import Image from 'next/image';
 
 import { Rnd } from 'react-rnd';
+
+import './styles.css';
 
 export interface CalculatorProperties {
   width?: number;
@@ -143,9 +145,26 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
         </div>
 
         <div className="mt-[4px] flex flex-col">
-          <div className="flex h-5 justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-dark-200"></div>
+          <div className="flex h-5 justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-600"></div>
           <div className="mt-[7px] flex justify-end gap-x-[9px] pr-3 text-5xl font-medium tracking-[0.0015em] text-light-100">
             <span>0</span>
+          </div>
+        </div>
+
+        <div className="mt-[18px] grid h-7 grid-cols-6 text-[13px] text-light-700 *:m-auto *:h-full *:rounded-sm *:px-[14px] *:pt-1 *:transition-colors">
+          <div>MC</div>
+          <div>MR</div>
+          <div className="memory-active">M+</div>
+          <div className="memory-active">M-</div>
+          <div className="memory-active">MS</div>
+          <div className="flex">
+            M
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 18 18">
+              <path
+                fill="currentColor"
+                d="M12 14.379q-.162 0-.298-.053t-.267-.184L7.046 9.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 13.292l4.246-4.246q.14-.14.344-.15t.364.15t.16.354t-.16.354l-4.389 4.388q-.13.131-.267.184q-.136.053-.298.053"
+              />
+            </svg>
           </div>
         </div>
       </div>
