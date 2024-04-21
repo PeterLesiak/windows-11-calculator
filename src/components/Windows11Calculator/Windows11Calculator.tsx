@@ -21,7 +21,7 @@ export interface CalculatorProperties {
 }
 
 const minimumWidth = 322;
-const minimumHeight = 502;
+const minimumHeight = 501;
 
 export const Windows11Calculator = (props: CalculatorProperties): ReactElement => {
   const [width] = useState(props.width ?? minimumWidth);
@@ -57,9 +57,15 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
 
       if (!element) return;
 
-      element.style.borderColor = element.contains(e.target as Node)
-        ? 'var(--clr-current-accent)'
-        : '';
+      if (element.contains(e.target as Node)) {
+        element.style.borderColor = 'var(--clr-current-accent)';
+        element.style.boxShadow = '0px 15px 60px -5px rgba(25, 25, 25, 1)';
+
+        return;
+      }
+
+      element.style.borderColor = '';
+      element.style.boxShadow = '';
     });
   });
 
@@ -71,14 +77,14 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       disableDragging={!draggable}
     >
       <div
-        className="flex h-full w-full cursor-default select-none flex-col rounded-lg border border-dark-100 bg-dark-700 drop-shadow-5xl"
+        className="flex h-full w-full cursor-default select-none flex-col rounded-lg border border-dark-100 bg-dark-700 shadow-[0px_15px_60px_-15px_#191919]"
         ref={calculatorRef}
       >
-        <div className="flex h-[50px] pl-[18px]" ref={toolbarRef}>
+        <div className="flex h-[50.5px] pl-[18px]" ref={toolbarRef}>
           <div className="mb-auto mt-auto">
             <Image src="/icons/calculator.png" width={17} height={17} alt="Calculator Icon" />
           </div>
-          <div className="mb-auto ml-[13px] mt-auto text-xs font-thin tracking-wide text-light-100">
+          <div className="mb-auto ml-[13px] mt-auto text-xs font-medium tracking-wide text-light-100">
             Calculator
           </div>
           <div className="ml-auto grid [grid-template-columns:repeat(3,1fr)]">
@@ -146,20 +152,20 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
         </div>
 
         <div className="mt-[7px] flex flex-col">
-          <div className="flex h-4 justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-600">
+          <div className="flex h-[1.1rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-600">
             <span>123456789</span>
             <span>+</span>
             <span>1</span>
             <span>=</span>
           </div>
-          <div className="flex cursor-text select-text justify-end gap-x-[9px] pr-3 text-[2.8rem] font-medium tracking-[0.0015em] text-light-100">
+          <div className="flex cursor-text select-text justify-end gap-x-[9px] pr-3 text-[2.8rem] font-semibold tracking-[0.0015em] text-light-100">
             <span>123</span>
             <span>456</span>
             <span>790</span>
           </div>
         </div>
 
-        <div className="*:transition-Colors mt-[8px] flex h-12 content-center items-center justify-between text-[13px] text-light-700 *:flex *:h-full *:items-center *:rounded-md *:px-[14px] *:duration-200">
+        <div className="*:transition-Colors mt-[6px] flex h-12 content-center items-center justify-between text-[13px] text-light-700 *:flex *:h-full *:items-center *:rounded-[0.25rem] *:px-[16px] *:duration-200">
           <div>MC</div>
           <div>MR</div>
           <div className="memory-active">M+</div>
@@ -167,7 +173,13 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           <div className="memory-active">MS</div>
           <div className="flex">
             M
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 18 18">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 18 18"
+              className="mb-[2px] mr-1"
+            >
               <path
                 fill="currentColor"
                 d="M12 14.379q-.162 0-.298-.053t-.267-.184L7.046 9.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 13.292l4.246-4.246q.14-.14.344-.15t.364.15t.16.354t-.16.354l-4.389 4.388q-.13.131-.267.184q-.136.053-.298.053"
@@ -176,8 +188,8 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div className="grid h-full gap-[0.1rem] p-[0.2rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md *:border *:border-dark-600">
-          <button className="operator" type="button">
+        <div className="grid h-full gap-[0.15rem] px-1 pb-1 pt-[0.085rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md">
+          <button className="operator font-light" type="button">
             %
           </button>
           <button className="operator text-sm" type="button">
@@ -208,7 +220,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             <svg
               className="h-3 w-3 fill-light-100 stroke-light-100"
               xmlns="http://www.w3.org/2000/svg"
-              enable-background="new 0 0 32 32"
+              enableBackground="new 0 0 32 32"
               viewBox="0 0 32 32"
               id="square-root"
             >
@@ -216,7 +228,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             </svg>
             <span className="relative right-[0.3rem] text-sm">x</span>
           </button>
-          <button className="operator text-2xl" type="button">
+          <button className="operator text-2xl font-light" type="button">
             ÷
           </button>
           <button className="number" type="button">
@@ -228,7 +240,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           <button className="number" type="button">
             9
           </button>
-          <button className="operator text-2xl" type="button">
+          <button className="operator text-2xl font-light" type="button">
             ×
           </button>
           <button className="number" type="button">
@@ -242,7 +254,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </button>
           <button className="operator" type="button" title="a">
             <Image
-              className="m-auto"
+              className="m-auto opacity-90"
               src="/icons/minus.png"
               width={18}
               height={18}
