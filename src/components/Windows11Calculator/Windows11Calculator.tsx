@@ -159,7 +159,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div className="*:transition-Colors mt-[8px] flex h-11 content-center items-center justify-between text-[13px] text-light-700 *:flex *:h-full *:items-center *:rounded-md *:px-[14px] *:duration-200">
+        <div className="*:transition-Colors mt-[8px] flex h-12 content-center items-center justify-between text-[13px] text-light-700 *:flex *:h-full *:items-center *:rounded-md *:px-[14px] *:duration-200">
           <div>MC</div>
           <div>MR</div>
           <div className="memory-active">M+</div>
