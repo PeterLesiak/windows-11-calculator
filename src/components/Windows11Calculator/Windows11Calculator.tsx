@@ -71,7 +71,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       disableDragging={!draggable}
     >
       <div
-        className="flex h-full w-full cursor-default select-none flex-col rounded-lg border-[1.5px] border-dark-400 bg-dark-700 drop-shadow-5xl"
+        className="flex h-full w-full cursor-default select-none flex-col rounded-lg border border-dark-100 bg-dark-700 drop-shadow-5xl"
         ref={calculatorRef}
       >
         <div className="flex h-[50px] pl-[18px]" ref={toolbarRef}>
@@ -271,7 +271,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             ,
           </button>
           <button className="special grid place-items-center" type="button" title="a">
-            <Image src="/icons/equals.png" width={13} height={13} alt="Equals Icon" />
+            <Image src="/icons/equals.png" width={20} height={20} alt="Equals Icon" />
           </button>
         </div>
       </div>

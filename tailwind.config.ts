@@ -11,7 +11,7 @@ const config: Config = {
       accent: 'var(--clr-current-accent)',
 
       red: 'hsl(5, 75%, 44%)',
-      special: 'hsl(4, 53%, 67%)',
+      special: 'hsl(4, 53%, 63%)',
 
       light: {
         100: '#FFFFFF',
@@ -21,7 +21,9 @@ const config: Config = {
       },
 
       dark: {
-        300: '#404040',
+        100: '#464646',
+
+        300: '#393939',
         400: '#363636',
         500: '#333333',
         600: '#2D2D2D',

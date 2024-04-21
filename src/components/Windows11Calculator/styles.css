@@ -21,7 +21,7 @@
   }
 
   .special {
-    @apply border-none bg-special text-dark-700 hover:brightness-95;
+    @apply border-none bg-special text-dark-700 hover:saturate-[1.1];
   }
 }
 
