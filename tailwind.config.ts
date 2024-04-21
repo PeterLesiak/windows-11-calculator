@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss';
 
-const Config: Config = {
+const config: Config = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -8,7 +8,10 @@ const Config: Config = {
   ],
   theme: {
     colors: {
-      red: '#C42B1C',
+      accent: 'var(--clr-current-accent)',
+
+      red: 'hsl(5, 75%, 44%)',
+      special: 'hsl(4, 53%, 67%)',
 
       light: {
         100: '#FFFFFF',
@@ -18,7 +21,9 @@ const Config: Config = {
       },
 
       dark: {
-        500: '#363636',
+        300: '#404040',
+        400: '#363636',
+        500: '#333333',
         600: '#2D2D2D',
         700: '#202020',
       },
@@ -32,4 +37,4 @@ const Config: Config = {
   },
   plugins: [],
 };
-export default Config;
+export default config;

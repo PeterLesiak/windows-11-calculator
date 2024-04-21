@@ -1,9 +1,9 @@
 /** @type {import('prettier').Config} */
-const Config = {
+const config = {
   arrowParens: 'avoid',
   plugins: ['prettier-plugin-tailwindcss'],
   printWidth: 95,
   singleQuote: true,
 };
 
-export default Config;
+export default config;

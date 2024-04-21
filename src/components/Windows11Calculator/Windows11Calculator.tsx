@@ -1,41 +1,47 @@
 'use client';
 
-import { useRef, useState, useEffect, type ReactElement } from 'react';
+import { useState, useRef, useEffect, type ReactElement } from 'react';
 import Image from 'next/image';
 
 import { Rnd } from 'react-rnd';
 
 import './styles.css';
 
+export const enum Colors {
+  RED = 'var(--clr-accent-red)',
+  ORANGE = 'var(--clr-accent-orange)',
+}
+
 export interface CalculatorProperties {
   width?: number;
   height?: number;
   x?: number;
   y?: number;
-  color?: string;
+  color?: Colors;
 }
 
-export const configuration = {
-  minimumWidth: 322,
-  minimumHeight: 503,
-  width: 322,
-  height: 500,
-  x: 0,
-  y: 0,
-  color: 'hsl(358, 63%, 51%)',
-};
+const minimumWidth = 322;
+const minimumHeight = 502;
 
 export const Windows11Calculator = (props: CalculatorProperties): ReactElement => {
-  configuration.color = props.color ?? configuration.color;
-  configuration.width = props.width ?? configuration.width;
-  configuration.height = props.height ?? configuration.height;
-  configuration.x = props.x ?? (window.innerWidth - configuration.width) / 2;
-  configuration.y = props.y ?? (window.innerHeight - configuration.height) / 2;
+  const [width] = useState(props.width ?? minimumWidth);
+  const [height] = useState(props.height ?? minimumHeight);
+  const [x] = useState(props.x ?? (window.innerWidth - width) / 2);
+  const [y] = useState(props.y ?? (window.innerHeight - height) / 2);
+  const [color] = useState(props.color ?? Colors.RED);
 
   const [draggable, setDraggable] = useState(false);
 
   const calculatorRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const calculator = calculatorRef.current;
+
+    if (calculator) {
+      calculator.setAttribute('style', `--clr-current-accent: ${color}`);
+    }
+  }, [color]);
 
   useEffect(() => {
     window.addEventListener('mouseover', e => {
@@ -52,36 +58,31 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       if (!element) return;
 
       element.style.borderColor = element.contains(e.target as Node)
-        ? configuration.color
+        ? 'var(--clr-current-accent)'
         : '';
     });
-  }, []);
+  });
 
   return (
     <Rnd
-      default={{
-        width: configuration.width,
-        height: configuration.height,
-        x: configuration.x,
-        y: configuration.y,
-      }}
-      minWidth={configuration.minimumWidth}
-      minHeight={configuration.minimumHeight}
+      default={{ width: width, height: height, x, y }}
+      minWidth={minimumWidth}
+      minHeight={minimumHeight}
       disableDragging={!draggable}
     >
       <div
-        className="h-full w-full cursor-default select-none rounded-lg border-[1.5px] border-dark-500 bg-dark-700 drop-shadow-5xl"
+        className="flex h-full w-full cursor-default select-none flex-col rounded-lg border-[1.5px] border-dark-400 bg-dark-700 drop-shadow-5xl"
         ref={calculatorRef}
       >
-        <div className="flex h-8 pl-[17px]" ref={toolbarRef}>
+        <div className="flex h-[50px] pl-[18px]" ref={toolbarRef}>
           <div className="mb-auto mt-auto">
             <Image src="/icons/calculator.png" width={17} height={17} alt="Calculator Icon" />
           </div>
-          <div className="mb-auto ml-[14px] mt-auto text-xs font-thin tracking-wide text-light-100">
+          <div className="mb-auto ml-[13px] mt-auto text-xs font-thin tracking-wide text-light-100">
             Calculator
           </div>
           <div className="ml-auto grid [grid-template-columns:repeat(3,1fr)]">
-            <div className="flex w-[46px] hover:bg-dark-500">
+            <div className="flex w-[46px] hover:bg-dark-400">
               <Image
                 className="m-auto invert"
                 src="/icons/minimize.png"
@@ -90,7 +91,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
                 alt="Minimize Icon"
               />
             </div>
-            <div className="flex hover:bg-dark-500">
+            <div className="flex hover:bg-dark-400">
               <Image
                 className="m-auto invert"
                 src="/icons/square.png"
@@ -124,7 +125,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           <div className="mb-auto ml-1 mt-auto h-8 text-xl font-medium tracking-[0.015em] text-light-100">
             Standard
           </div>
-          <div className="mb-auto ml-2 mt-auto flex h-8 w-8 rounded-md transition-colors hover:bg-dark-600">
+          <div className="transition-Colors mb-auto ml-2 mt-auto flex h-8 w-8 rounded-md hover:bg-dark-600">
             <Image
               className="m-auto"
               src="/icons/keep on top.png"
@@ -133,7 +134,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
               alt="Keep On Top Icon"
             />
           </div>
-          <div className="mb-auto ml-auto mt-auto flex h-8 w-8 rounded-md transition-colors hover:bg-dark-600">
+          <div className="transition-Colors mb-auto ml-auto mt-auto flex h-8 w-8 rounded-md hover:bg-dark-600">
             <Image
               className="m-auto"
               src="/icons/history.png"
@@ -144,14 +145,21 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div className="mt-[4px] flex flex-col">
-          <div className="flex h-5 justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-600"></div>
-          <div className="mt-[7px] flex justify-end gap-x-[9px] pr-3 text-5xl font-medium tracking-[0.0015em] text-light-100">
-            <span>0</span>
+        <div className="mt-[7px] flex flex-col">
+          <div className="flex h-4 justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-600">
+            <span>123456789</span>
+            <span>+</span>
+            <span>1</span>
+            <span>=</span>
+          </div>
+          <div className="flex cursor-text select-text justify-end gap-x-[9px] pr-3 text-[2.8rem] font-medium tracking-[0.0015em] text-light-100">
+            <span>123</span>
+            <span>456</span>
+            <span>790</span>
           </div>
         </div>
 
-        <div className="mt-[18px] grid h-7 grid-cols-6 text-[13px] text-light-700 *:m-auto *:h-full *:rounded-sm *:px-[14px] *:pt-1 *:transition-colors">
+        <div className="*:transition-Colors mt-[8px] flex h-11 content-center items-center justify-between text-[13px] text-light-700 *:flex *:h-full *:items-center *:rounded-md *:px-[14px] *:duration-200">
           <div>MC</div>
           <div>MR</div>
           <div className="memory-active">M+</div>
@@ -166,6 +174,105 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
               />
             </svg>
           </div>
+        </div>
+
+        <div className="grid h-full gap-[0.1rem] p-[0.2rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md *:border *:border-dark-600">
+          <button className="operator" type="button">
+            %
+          </button>
+          <button className="operator text-sm" type="button">
+            CE
+          </button>
+          <button className="operator text-sm" type="button">
+            C
+          </button>
+          <button
+            className="operator grid place-items-center"
+            type="button"
+            title="Clear last digit"
+          >
+            <Image src="/icons/clear.png" width={15} height={15} alt="Clear" />
+          </button>
+          <button className="operator" type="button" title="1 Divided by X">
+            ⅟<i className="text-sm">x</i>
+          </button>
+          <button className="operator text-sm" type="button">
+            <i className="mr-[0.2rem]">x</i>
+            <sup>2</sup>
+          </button>
+          <button
+            className="operator flex items-center justify-center"
+            type="button"
+            title="Square root of x"
+          >
+            <svg
+              className="h-3 w-3 fill-light-100 stroke-light-100"
+              xmlns="http://www.w3.org/2000/svg"
+              enable-background="new 0 0 32 32"
+              viewBox="0 0 32 32"
+              id="square-root"
+            >
+              <path d="M8,30c-0.416,0-0.7896-0.2578-0.9365-0.6489L4.3071,22H3c-0.5522,0-1-0.4478-1-1s0.4478-1,1-1h2c0.417,0,0.79,0.2588,0.9365,0.6489l1.9702,5.2539l7.1377-23.1968C15.1733,2.2861,15.561,2,16,2h13c0.5522,0,1,0.4478,1,1s-0.4478,1-1,1H16.7388L8.9556,29.2939c-0.1255,0.4092-0.4976,0.6929-0.9253,0.7056C8.02,30,8.0098,30,8,30z"></path>
+            </svg>
+            <span className="relative right-[0.3rem] text-sm">x</span>
+          </button>
+          <button className="operator text-2xl" type="button">
+            ÷
+          </button>
+          <button className="number" type="button">
+            7
+          </button>
+          <button className="number" type="button">
+            8
+          </button>
+          <button className="number" type="button">
+            9
+          </button>
+          <button className="operator text-2xl" type="button">
+            ×
+          </button>
+          <button className="number" type="button">
+            4
+          </button>
+          <button className="number" type="button">
+            5
+          </button>
+          <button className="number" type="button">
+            6
+          </button>
+          <button className="operator" type="button" title="a">
+            <Image
+              className="m-auto"
+              src="/icons/minus.png"
+              width={18}
+              height={18}
+              alt="Minimize Icon"
+            />
+          </button>
+          <button className="number" type="button">
+            1
+          </button>
+          <button className="number" type="button">
+            2
+          </button>
+          <button className="number" type="button">
+            3
+          </button>
+          <button className="operator" type="button">
+            +
+          </button>
+          <button className="number font-medium" type="button">
+            <sup>+</sup>/<sub>-</sub>
+          </button>
+          <button className="number" type="button">
+            0
+          </button>
+          <button className="number" type="button">
+            ,
+          </button>
+          <button className="special grid place-items-center" type="button" title="a">
+            <Image src="/icons/equals.png" width={13} height={13} alt="Equals Icon" />
+          </button>
         </div>
       </div>
     </Rnd>

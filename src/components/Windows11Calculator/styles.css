@@ -2,8 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --clr-accent-red: hsl(358, 63%, 51%);
+  --clr-accent-orange: hsl(22, 94%, 51%);
+}
+
 @layer components {
   .memory-active {
     @apply text-light-100 hover:bg-dark-600;
   }
+
+  .operator {
+    @apply bg-dark-500 hover:bg-dark-300;
+  }
+
+  .number {
+    @apply bg-dark-300 hover:bg-dark-500;
+  }
+
+  .special {
+    @apply border-none bg-special text-dark-700 hover:brightness-95;
+  }
+}
+
+::selection {
+  @apply !bg-accent;
 }
