@@ -262,7 +262,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             +
           </button>
           <button className="number font-medium" type="button">
-            <sup>+</sup>/<sub>-</sub>
+            <sup>+</sup>/-
           </button>
           <button className="number" type="button">
             0
