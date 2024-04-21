@@ -59,7 +59,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
 
       if (element.contains(e.target as Node)) {
         element.style.borderColor = 'var(--clr-current-accent)';
-        element.style.boxShadow = '0px 15px 60px -5px rgba(25, 25, 25, 1)';
+        element.style.boxShadow = '0px 15px 60px -5px #000';
 
         return;
       }
@@ -77,7 +77,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       disableDragging={!draggable}
     >
       <div
-        className="flex h-full w-full cursor-default select-none flex-col rounded-lg border border-dark-100 bg-dark-700 shadow-[0px_15px_60px_-15px_#191919]"
+        className="flex h-full w-full cursor-default select-none flex-col rounded-lg border border-dark-100 bg-dark-700 shadow-[0px_15px_60px_-15px_#000]"
         ref={calculatorRef}
       >
         <div className="flex h-[50.5px] pl-[18px]" ref={toolbarRef}>
@@ -128,7 +128,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
               alt="Toogle Menu Icon"
             />
           </div>
-          <div className="mb-auto ml-1 mt-auto h-8 text-xl font-medium tracking-[0.015em] text-light-100">
+          <div className="mb-auto ml-1 mt-auto h-8 text-xl font-semibold tracking-[0.015em] text-light-100">
             Standard
           </div>
           <div className="transition-Colors mb-auto ml-2 mt-auto flex h-8 w-8 rounded-md hover:bg-dark-600">
@@ -165,7 +165,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div className="*:transition-Colors mt-[6px] flex h-12 content-center items-center justify-between text-[13px] text-light-700 *:flex *:h-full *:items-center *:rounded-[0.25rem] *:px-[16px] *:duration-200">
+        <div className="mt-[7px] flex h-12 content-center items-center justify-between text-[13px] text-light-700 *:flex *:h-full *:items-center *:rounded-[0.25rem] *:px-[16px] *:transition-colors">
           <div>MC</div>
           <div>MR</div>
           <div className="memory-active">M+</div>
@@ -178,7 +178,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
               width="12"
               height="12"
               viewBox="0 0 18 18"
-              className="mb-[2px] mr-1"
+              className="mb-[1.5px] mr-1"
             >
               <path
                 fill="currentColor"
@@ -188,8 +188,8 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div className="grid h-full gap-[0.15rem] px-1 pb-1 pt-[0.085rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md">
-          <button className="operator font-light" type="button">
+        <div className="mt-[0.08rem] grid h-full gap-[0.125rem] px-1 pb-1 pt-[0.085rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md">
+          <button className="operator font-extralight" type="button">
             %
           </button>
           <button className="operator text-sm" type="button">
