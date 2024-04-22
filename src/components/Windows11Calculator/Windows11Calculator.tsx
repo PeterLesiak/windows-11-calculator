@@ -33,7 +33,12 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
   const [draggable, setDraggable] = useState(false);
 
   const calculatorRef = useRef<HTMLDivElement>(null);
+
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const toolbarButtonsRef = useRef<HTMLDivElement>(null);
+  const minimizeRef = useRef<HTMLButtonElement>(null);
+  const maximizeRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const calculator = calculatorRef.current;
@@ -46,10 +51,13 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
   useEffect(() => {
     window.addEventListener('mouseover', e => {
       const element = toolbarRef.current;
+      const toolbarButtons = toolbarButtonsRef.current;
 
-      if (!element) return;
+      if (!element || !toolbarButtons) return;
 
-      setDraggable(element.contains(e.target as Node));
+      setDraggable(
+        element.contains(e.target as Node) && !toolbarButtons.contains(e.target as Node),
+      );
     });
 
     window.addEventListener('mousedown', e => {
@@ -77,18 +85,26 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       disableDragging={!draggable}
     >
       <div
-        className="flex h-full w-full cursor-default select-none flex-col rounded-lg border border-dark-100 bg-dark-700 shadow-[0px_15px_60px_-15px_#000]"
+        className="flex h-full w-full cursor-default select-none flex-col rounded-lg border border-dark-200 bg-dark-700 shadow-[0px_15px_60px_-15px_#000]"
         ref={calculatorRef}
       >
-        <div className="flex h-[50.5px] pl-[18px]" ref={toolbarRef}>
+        <div className="flex h-[53.5px] pl-[18px]" ref={toolbarRef}>
           <div className="mb-auto mt-auto">
             <Image src="/icons/calculator.png" width={17} height={17} alt="Calculator Icon" />
           </div>
-          <div className="mb-auto ml-[13px] mt-auto text-xs font-medium tracking-wide text-light-100">
+          <div className="mb-auto ml-[13px] mt-auto text-xs tracking-wide text-light-100">
             Calculator
           </div>
-          <div className="ml-auto grid [grid-template-columns:repeat(3,1fr)]">
-            <div className="flex w-[46px] hover:bg-dark-400">
+          <div
+            className="ml-auto grid [grid-template-columns:repeat(3,1fr)]"
+            ref={toolbarButtonsRef}
+          >
+            <button
+              className="flex w-[46px] hover:bg-dark-500"
+              type="button"
+              title="Minimize"
+              ref={minimizeRef}
+            >
               <Image
                 className="m-auto invert"
                 src="/icons/minimize.png"
@@ -96,8 +112,13 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
                 height={10}
                 alt="Minimize Icon"
               />
-            </div>
-            <div className="flex hover:bg-dark-400">
+            </button>
+            <button
+              className="flex hover:bg-dark-500"
+              type="button"
+              title="Maximize"
+              ref={maximizeRef}
+            >
               <Image
                 className="m-auto invert"
                 src="/icons/square.png"
@@ -105,8 +126,13 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
                 height={11}
                 alt="Maximize Icon"
               />
-            </div>
-            <div className="flex rounded-tr-lg hover:bg-red">
+            </button>
+            <button
+              className="flex rounded-tr-lg hover:bg-red"
+              type="button"
+              title="Close"
+              ref={closeRef}
+            >
               <Image
                 className="m-auto invert"
                 src="/icons/close.png"
@@ -114,7 +140,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
                 height={14}
                 alt="Close Icon"
               />
-            </div>
+            </button>
           </div>
         </div>
 
@@ -151,17 +177,14 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div className="mt-[7px] flex flex-col">
-          <div className="flex h-[1.1rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-600">
-            <span>123456789</span>
-            <span>+</span>
+        <div className="mt-[4px] flex flex-col">
+          <div className="flex h-[1.1rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-500"></div>
+          <div className="flex cursor-text select-text justify-end gap-x-[0.65rem] pr-[0.8rem] text-[2.9rem] font-semibold tracking-[0.003em] text-light-100">
             <span>1</span>
-            <span>=</span>
-          </div>
-          <div className="flex cursor-text select-text justify-end gap-x-[9px] pr-3 text-[2.8rem] font-semibold tracking-[0.0015em] text-light-100">
-            <span>123</span>
-            <span>456</span>
-            <span>790</span>
+            <span>111</span>
+            <span>111</span>
+            <span>111</span>
+            <span>111</span>
           </div>
         </div>
 
@@ -188,7 +211,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div className="mt-[0.08rem] grid h-full gap-[0.125rem] px-1 pb-1 pt-[0.085rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md">
+        <div className="mt-[0.08rem] grid h-full grid-rows-6 gap-[0.125rem] px-1 pb-1 pt-[0.085rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md">
           <button className="operator font-extralight" type="button">
             %
           </button>

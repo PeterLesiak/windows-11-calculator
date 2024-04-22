@@ -13,11 +13,11 @@
   }
 
   .operator {
-    @apply bg-dark-500 hover:bg-dark-300;
+    @apply bg-dark-400 hover:bg-dark-300;
   }
 
   .number {
-    @apply bg-dark-300 hover:bg-dark-500;
+    @apply bg-dark-300 hover:bg-dark-400;
   }
 
   .special {
