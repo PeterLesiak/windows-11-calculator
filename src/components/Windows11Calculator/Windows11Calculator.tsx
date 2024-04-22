@@ -147,7 +147,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div className="mt-[7.5px] flex pl-1 pr-2">
+        <div className="mt-[7px] flex pl-1 pr-2">
           <div className="mb-auto mt-auto flex h-9 w-10 rounded-md hover:bg-dark-600">
             <Image
               className="m-auto"
@@ -181,7 +181,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
         </div>
 
         <div className="mt-[4px] flex flex-col">
-          <div className="flex h-[1.05rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-500"></div>
+          <div className="flex h-[1.1rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-500"></div>
           <div className="flex cursor-text select-text justify-end gap-x-[0.65rem] pr-[0.8rem] text-[2.9rem] font-semibold tracking-[0.003em] text-light-100">
             <span>0</span>
           </div>
