@@ -9,9 +9,9 @@ const config: Config = {
   theme: {
     colors: {
       accent: 'var(--clr-current-accent)',
+      highlite: 'var(--clr-current-highlite)',
 
       red: 'hsl(5, 75%, 44%)',
-      special: 'hsl(4, 60%, 67%)',
 
       light: {
         100: '#FFFFFF',

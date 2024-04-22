@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 :root {
+  /* highlite: lightness + 3% */
   --clr-accent-red: hsl(358, 63%, 51%);
+  --clr-highlite-red: hsl(4, 53%, 66%);
+
   --clr-accent-orange: hsl(22, 94%, 51%);
+  --clr-highlite-orange: hsl(22, 94%, 54%);
 }
 
 @layer components {
@@ -13,15 +17,15 @@
   }
 
   .operator {
-    @apply bg-dark-400 hover:bg-dark-300;
+    @apply border border-dark-500 bg-dark-400 hover:bg-dark-300;
   }
 
   .number {
-    @apply bg-dark-300 hover:bg-dark-400;
+    @apply border border-dark-500 bg-dark-300 hover:bg-dark-400;
   }
 
   .special {
-    @apply border-none bg-special text-dark-700 hover:brightness-95;
+    @apply border-none bg-highlite text-dark-700 hover:brightness-95;
   }
 }
 

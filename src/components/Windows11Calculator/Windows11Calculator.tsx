@@ -8,8 +8,8 @@ import { Rnd } from 'react-rnd';
 import './styles.css';
 
 export const enum Colors {
-  RED = 'var(--clr-accent-red)',
-  ORANGE = 'var(--clr-accent-orange)',
+  RED = 'red',
+  ORANGE = 'orange',
 }
 
 export interface CalculatorProperties {
@@ -44,7 +44,10 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
     const calculator = calculatorRef.current;
 
     if (calculator) {
-      calculator.setAttribute('style', `--clr-current-accent: ${color}`);
+      calculator.setAttribute(
+        'style',
+        `--clr-current-accent: var(--clr-accent-${color}); --clr-current-highlite: var(--clr-highlite-${color})`,
+      );
     }
   }, [color]);
 
@@ -178,17 +181,13 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
         </div>
 
         <div className="mt-[4px] flex flex-col">
-          <div className="flex h-[1.1rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-500"></div>
+          <div className="flex h-[1.05rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-500"></div>
           <div className="flex cursor-text select-text justify-end gap-x-[0.65rem] pr-[0.8rem] text-[2.9rem] font-semibold tracking-[0.003em] text-light-100">
-            <span>1</span>
-            <span>111</span>
-            <span>111</span>
-            <span>111</span>
-            <span>111</span>
+            <span>0</span>
           </div>
         </div>
 
-        <div className="mt-[7px] flex h-12 content-center items-center justify-between text-[13px] text-light-700 *:flex *:h-full *:items-center *:rounded-[0.25rem] *:px-[16px] *:transition-colors">
+        <div className="mt-[6px] flex h-12 content-center items-center justify-between text-[13px] text-light-700 *:flex *:h-full *:items-center *:rounded-[0.25rem] *:px-[16px] *:transition-colors">
           <div>MC</div>
           <div>MR</div>
           <div className="memory-active">M+</div>
@@ -297,7 +296,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             +
           </button>
           <button className="number font-medium" type="button">
-            <sup>+</sup>/-
+            <sup>+</sup>/<sub className="text-xl font-bold">-</sub>
           </button>
           <button className="number" type="button">
             0
