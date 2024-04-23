@@ -12,6 +12,38 @@ export const enum Colors {
   ORANGE = 'orange',
 }
 
+const enum BUTTON_TYPE {
+  PERCENT = 'percent',
+  CLEAR_ENTRY = 'clear_entry',
+  CLEAR = 'clear',
+  REMOVE_LAST = 'remove_last',
+
+  ONE_OVER_X = 'one_over_x',
+  SQUARE = 'square',
+  SQRT = 'sqrt',
+  DIVISION = 'division',
+
+  DIGIT_7 = 'digit_7',
+  DIGIT_8 = 'digit_8',
+  DIGIT_9 = 'digit_9',
+  MULTIPLICATION = 'multiplication',
+
+  DIGIT_4 = 'digit_4',
+  DIGIT_5 = 'digit_5',
+  DIGIT_6 = 'digit_6',
+  SUBTRACTION = 'subtraction',
+
+  DIGIT_1 = 'digit_1',
+  DIGIT_2 = 'digit_2',
+  DIGIT_3 = 'digit_3',
+  ADDITION = 'addition',
+
+  SWITCH_SIGN = 'switch_sign',
+  DIGIT_0 = 'digit_0',
+  DECIMAL = 'decimal',
+  EQUALS = 'equals',
+}
+
 export interface CalculatorProperties {
   width?: number;
   height?: number;
@@ -39,6 +71,10 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
   const minimizeRef = useRef<HTMLButtonElement>(null);
   const maximizeRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+
+  const minTextRef = useRef<HTMLDivElement>(null);
+  const maxTextRef = useRef<HTMLDivElement>(null);
+  const buttonsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const calculator = calculatorRef.current;
@@ -79,6 +115,114 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       element.style.boxShadow = '';
     });
   });
+
+  useEffect(() => {
+    if (!buttonsRef.current) return;
+
+    const buttons = buttonsRef.current.querySelectorAll('button');
+    const maxText = maxTextRef.current!;
+    const minText = minTextRef.current!;
+
+    let result = '0';
+
+    const insertSymbol = (symbol: string): void => {
+      result = `${result != '0' ? result : ''}${symbol}`;
+
+      while (maxText.firstChild) {
+        maxText.removeChild(maxText.lastChild as Node);
+      }
+
+      let lastChild: HTMLSpanElement | null = null,
+        seenComma = false;
+      for (let i = 0; i < result.length; ++i) {
+        if (result[i] == ',') seenComma = true;
+
+        const createNewElement =
+          (((result.indexOf(',') == -1 ? result.length : result.indexOf(',')) - i) % 3 == 0 ||
+            i == 0) &&
+          !seenComma;
+
+        if (createNewElement) {
+          const element = document.createElement('span');
+          element.textContent = result[i];
+          maxText.appendChild(element);
+          lastChild = element;
+
+          continue;
+        }
+
+        lastChild!.textContent += result[i];
+      }
+    };
+
+    buttons.forEach(button => {
+      const buttonName = button.getAttribute('data-name') as BUTTON_TYPE;
+
+      button.onclick = () => {
+        switch (buttonName) {
+          case BUTTON_TYPE.PERCENT:
+            break;
+          case BUTTON_TYPE.CLEAR_ENTRY:
+            break;
+          case BUTTON_TYPE.CLEAR:
+            break;
+          case BUTTON_TYPE.REMOVE_LAST:
+            break;
+          case BUTTON_TYPE.ONE_OVER_X:
+            break;
+          case BUTTON_TYPE.SQUARE:
+            break;
+          case BUTTON_TYPE.SQRT:
+            break;
+          case BUTTON_TYPE.DIVISION:
+            break;
+          case BUTTON_TYPE.DIGIT_7:
+            insertSymbol('7');
+            break;
+          case BUTTON_TYPE.DIGIT_8:
+            insertSymbol('8');
+            break;
+          case BUTTON_TYPE.DIGIT_9:
+            insertSymbol('9');
+            break;
+          case BUTTON_TYPE.MULTIPLICATION:
+            break;
+          case BUTTON_TYPE.DIGIT_4:
+            insertSymbol('4');
+            break;
+          case BUTTON_TYPE.DIGIT_5:
+            insertSymbol('5');
+            break;
+          case BUTTON_TYPE.DIGIT_6:
+            insertSymbol('6');
+            break;
+          case BUTTON_TYPE.SUBTRACTION:
+            break;
+          case BUTTON_TYPE.DIGIT_1:
+            insertSymbol('1');
+            break;
+          case BUTTON_TYPE.DIGIT_2:
+            insertSymbol('2');
+            break;
+          case BUTTON_TYPE.DIGIT_3:
+            insertSymbol('3');
+            break;
+          case BUTTON_TYPE.ADDITION:
+            break;
+          case BUTTON_TYPE.SWITCH_SIGN:
+            break;
+          case BUTTON_TYPE.DIGIT_0:
+            insertSymbol('0');
+            break;
+          case BUTTON_TYPE.DECIMAL:
+            if (!result.includes(',')) insertSymbol(',');
+            break;
+          case BUTTON_TYPE.EQUALS:
+            break;
+        }
+      };
+    });
+  }, []);
 
   return (
     <Rnd
@@ -181,8 +325,14 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
         </div>
 
         <div className="mt-[4px] flex flex-col">
-          <div className="flex h-[1.1rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-500"></div>
-          <div className="flex cursor-text select-text justify-end gap-x-[0.65rem] pr-[0.8rem] text-[2.9rem] font-semibold tracking-[0.003em] text-light-100">
+          <div
+            className="flex h-[1.1rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-500"
+            ref={minTextRef}
+          ></div>
+          <div
+            className="flex cursor-text select-text justify-end gap-x-[0.65rem] pr-[0.8rem] text-[2.9rem] font-semibold tracking-[0.003em] text-light-100"
+            ref={maxTextRef}
+          >
             <span>0</span>
           </div>
         </div>
@@ -210,27 +360,36 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div className="mt-[0.08rem] grid h-full grid-rows-6 gap-[0.125rem] px-1 pb-1 pt-[0.085rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md">
-          <button className="operator font-extralight" type="button">
+        <div
+          className="mt-[0.08rem] grid h-full grid-rows-6 gap-[0.125rem] px-1 pb-1 pt-[0.085rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md"
+          ref={buttonsRef}
+        >
+          <button className="operator font-extralight" type="button" data-name="percent">
             %
           </button>
-          <button className="operator text-sm" type="button">
+          <button className="operator text-sm" type="button" data-name="clear_entry">
             CE
           </button>
-          <button className="operator text-sm" type="button">
+          <button className="operator text-sm" type="button" data-name="clear">
             C
           </button>
           <button
             className="operator grid place-items-center"
             type="button"
             title="Clear last digit"
+            data-name="remove_last"
           >
             <Image src="/icons/clear.png" width={15} height={15} alt="Clear" />
           </button>
-          <button className="operator" type="button" title="1 Divided by X">
+          <button
+            className="operator"
+            type="button"
+            title="1 Divided by X"
+            data-name="one_over_x"
+          >
             ⅟<i className="text-sm">x</i>
           </button>
-          <button className="operator text-sm" type="button">
+          <button className="operator text-sm" type="button" data-name="square">
             <i className="mr-[0.2rem]">x</i>
             <sup>2</sup>
           </button>
@@ -238,6 +397,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             className="operator flex items-center justify-center"
             type="button"
             title="Square root of x"
+            data-name="sqrt"
           >
             <svg
               className="h-3 w-3 fill-light-100 stroke-light-100"
@@ -250,31 +410,35 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             </svg>
             <span className="relative right-[0.3rem] text-sm">x</span>
           </button>
-          <button className="operator text-2xl font-light" type="button">
+          <button className="operator text-2xl font-light" type="button" data-name="division">
             ÷
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="digit_7">
             7
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="digit_8">
             8
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="digit_9">
             9
           </button>
-          <button className="operator text-2xl font-light" type="button">
+          <button
+            className="operator text-2xl font-light"
+            type="button"
+            data-name="multiplication"
+          >
             ×
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="digit_4">
             4
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="digit_5">
             5
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="digit_6">
             6
           </button>
-          <button className="operator" type="button" title="a">
+          <button className="operator" type="button" title="Subtract" data-name="subtraction">
             <Image
               className="m-auto opacity-90"
               src="/icons/minus.png"
@@ -283,28 +447,33 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
               alt="Minimize Icon"
             />
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="digit_1">
             1
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="digit_2">
             2
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="digit_3">
             3
           </button>
-          <button className="operator" type="button">
+          <button className="operator" type="button" data-name="addition">
             +
           </button>
-          <button className="number font-medium" type="button">
+          <button className="number font-medium" type="button" data-name="switch_sign">
             <sup>+</sup>/<sub className="text-xl font-bold">-</sub>
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="digit_0">
             0
           </button>
-          <button className="number" type="button">
+          <button className="number" type="button" data-name="decimal">
             ,
           </button>
-          <button className="special grid place-items-center" type="button" title="a">
+          <button
+            className="special grid place-items-center"
+            type="button"
+            title="Equals"
+            data-name="equals"
+          >
             <Image src="/icons/equals.png" width={20} height={20} alt="Equals Icon" />
           </button>
         </div>
