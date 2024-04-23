@@ -132,8 +132,8 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
         maxText.removeChild(maxText.lastChild as Node);
       }
 
-      let lastChild: HTMLSpanElement | null = null,
-        seenComma = false;
+      let lastChild: HTMLSpanElement | null = null;
+      let seenComma = false;
       for (let i = 0; i < result.length; ++i) {
         if (result[i] == ',') seenComma = true;
 
