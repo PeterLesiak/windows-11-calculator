@@ -124,15 +124,39 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
     const minText = minTextRef.current!;
 
     let result = '0';
+    let negative = false;
+
+    let firstNumber = '';
+    let operation = '';
+    let removeAll = false;
 
     const insertSymbol = (symbol: string): void => {
-      result = `${result != '0' ? result : ''}${symbol}`;
+      if (removeAll) {
+        while (minText.firstChild) {
+          minText.removeChild(minText.lastChild as Node);
+        }
+
+        removeAll = false;
+      }
+
+      if (symbol == '-') {
+        negative = !negative;
+      } else {
+        result = `${result == '0' && symbol != ',' ? '' : result}${symbol}`;
+      }
 
       while (maxText.firstChild) {
         maxText.removeChild(maxText.lastChild as Node);
       }
 
       let lastChild: HTMLSpanElement | null = null;
+      if (negative) {
+        const element = document.createElement('span');
+        element.textContent = '-';
+        maxText.appendChild(element);
+        lastChild = element;
+      }
+
       let seenComma = false;
       for (let i = 0; i < result.length; ++i) {
         if (result[i] == ',') seenComma = true;
@@ -140,7 +164,8 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
         const createNewElement =
           (((result.indexOf(',') == -1 ? result.length : result.indexOf(',')) - i) % 3 == 0 ||
             i == 0) &&
-          !seenComma;
+          !seenComma &&
+          !(negative && i == 0);
 
         if (createNewElement) {
           const element = document.createElement('span');
@@ -155,6 +180,81 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       }
     };
 
+    const handleOperation = (symbol: string): void => {
+      while (minText.firstChild) {
+        minText.removeChild(minText.lastChild as Node);
+      }
+
+      while (maxText.firstChild) {
+        maxText.removeChild(maxText.lastChild as Node);
+      }
+
+      const numberElement = document.createElement('span');
+      numberElement.textContent = `${negative ? '-' : ''}${result}`;
+      minText.appendChild(numberElement);
+
+      const symbolElement = document.createElement('span');
+      symbolElement.textContent = symbol;
+      minText.appendChild(symbolElement);
+
+      firstNumber = `${negative ? '-' : ''}${result}`;
+      operation = symbol;
+      result = '';
+      negative = false;
+      insertSymbol('0');
+
+      result = '';
+      negative = false;
+    };
+
+    const clearEntry = (): void => {
+      result = '';
+      negative = false;
+      insertSymbol('0');
+    };
+
+    const evaluate = (num1: number, operator: string, num2: number): number => {
+      switch (operator) {
+        case '+':
+          return num1 + num2;
+        case '-':
+          return num1 - num2;
+        case '×':
+          return num1 * num2;
+        case '÷':
+          return num1 / num2;
+
+        default:
+          return 69;
+      }
+    };
+
+    const handleEquals = (): void => {
+      const numberElement = document.createElement('span');
+      numberElement.textContent = `${negative ? '-' : ''}${result}`;
+      minText.appendChild(numberElement);
+
+      const equalsElement = document.createElement('span');
+      equalsElement.textContent = '=';
+      minText.appendChild(equalsElement);
+
+      const stringResult = String(
+        evaluate(
+          +firstNumber.replace(',', '.'),
+          operation,
+          +`${negative ? '-' : ''}${result}`.replace(',', '.'),
+        ),
+      );
+
+      clearEntry();
+
+      for (const char of stringResult) {
+        insertSymbol(char == '.' ? ',' : char);
+      }
+
+      removeAll = true;
+    };
+
     buttons.forEach(button => {
       const buttonName = button.getAttribute('data-name') as BUTTON_TYPE;
 
@@ -163,10 +263,24 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           case BUTTON_TYPE.PERCENT:
             break;
           case BUTTON_TYPE.CLEAR_ENTRY:
+            clearEntry();
             break;
           case BUTTON_TYPE.CLEAR:
+            firstNumber = '';
+            operation = '';
+            result = '';
+            negative = false;
+            insertSymbol('0');
             break;
           case BUTTON_TYPE.REMOVE_LAST:
+            if (result.length > 1) {
+              result = result.slice(0, result.length - 1);
+              insertSymbol('');
+            } else {
+              result = '0';
+              negative = false;
+              insertSymbol('0');
+            }
             break;
           case BUTTON_TYPE.ONE_OVER_X:
             break;
@@ -175,6 +289,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           case BUTTON_TYPE.SQRT:
             break;
           case BUTTON_TYPE.DIVISION:
+            handleOperation('÷');
             break;
           case BUTTON_TYPE.DIGIT_7:
             insertSymbol('7');
@@ -186,6 +301,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             insertSymbol('9');
             break;
           case BUTTON_TYPE.MULTIPLICATION:
+            handleOperation('×');
             break;
           case BUTTON_TYPE.DIGIT_4:
             insertSymbol('4');
@@ -197,6 +313,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             insertSymbol('6');
             break;
           case BUTTON_TYPE.SUBTRACTION:
+            handleOperation('-');
             break;
           case BUTTON_TYPE.DIGIT_1:
             insertSymbol('1');
@@ -208,8 +325,12 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             insertSymbol('3');
             break;
           case BUTTON_TYPE.ADDITION:
+            handleOperation('+');
             break;
           case BUTTON_TYPE.SWITCH_SIGN:
+            if (result != '0') {
+              insertSymbol('-');
+            }
             break;
           case BUTTON_TYPE.DIGIT_0:
             insertSymbol('0');
@@ -218,8 +339,13 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             if (!result.includes(',')) insertSymbol(',');
             break;
           case BUTTON_TYPE.EQUALS:
+            if (firstNumber != '' && operation != '') {
+              handleEquals();
+            }
             break;
         }
+
+        console.log(result, negative, operation, firstNumber);
       };
     });
   }, []);
