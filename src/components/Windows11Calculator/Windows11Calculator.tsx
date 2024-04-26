@@ -131,6 +131,29 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
     }
   };
 
+  const adjustSpacing = (): void => {
+    const maxTextElement = maxTextRef.current!;
+    const absoluteLength = result.length - (result.includes(',') ? 1 : 0);
+
+    maxTextElement.style.fontSize = '';
+    maxTextElement.style.columnGap = '';
+
+    if (absoluteLength > 8) {
+      maxTextElement.style.fontSize = '2.75rem';
+    }
+    if (absoluteLength > 9) {
+      maxTextElement.style.fontSize = '2.6rem';
+    }
+    if (absoluteLength > 10) {
+      maxTextElement.style.fontSize = '2.4rem';
+      maxTextElement.style.columnGap = '0.525rem';
+    }
+    if (result.length > 11) {
+      maxTextElement.style.fontSize = '2.25rem';
+      maxTextElement.style.columnGap = '0.475rem';
+    }
+  };
+
   const updateMaxText = (): void => {
     const maxTextElement = maxTextRef.current!;
 
@@ -170,10 +193,14 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       element.textContent = item;
       maxTextElement.appendChild(element);
     }
+
+    adjustSpacing();
   };
 
   const insertDigit = (digit: number): void => {
-    savedResult = '';
+    const absoluteLength =
+      result.length - (result.includes(',') ? 1 : 0) - (result.includes('-') ? 1 : 0);
+    if (absoluteLength > 11) return;
 
     if (result[0] == '-') {
       result = `${result != '-0' ? result : '-'}${digit}`;
@@ -241,14 +268,30 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
     updateMaxText();
   };
 
+  const clampBounds = (num: number): number => {
+    const MAX_BOUND = 10000000000;
+
+    if (num > MAX_BOUND) return Infinity;
+
+    if (num < -MAX_BOUND) return -Infinity;
+
+    return num;
+  };
+
+  const limitNumber = (num: number): number => {
+    const DECIMALS = Math.pow(10, 6);
+
+    return clampBounds(Math.round(num * DECIMALS) / DECIMALS);
+  };
+
   const stringifyInverse = (num: string): string => `1/( ${num} ) =`;
-  const calculateInverse = (num: number): number => 1 / num;
+  const calculateInverse = (num: number): number => limitNumber(1 / num);
 
   const stringifySquare = (num: string): string => `sqr( ${num} ) =`;
-  const calculateSquare = (num: number): number => num * num;
+  const calculateSquare = (num: number): number => limitNumber(num * num);
 
   const stringifySquareRoot = (num: string): string => `√( ${num} ) =`;
-  const calculateSquareRoot = (num: number): number => Math.sqrt(num);
+  const calculateSquareRoot = (num: number): number => limitNumber(Math.sqrt(num));
 
   const stringifyPercent = (
     operation: Nullable<SingleOperation | DoubleOperation>,
@@ -276,27 +319,30 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
         return '0';
     }
   };
-  const calculatePercent = (num1: number, num2: number): number => (num1 * num2) / 100;
+  const calculatePercent = (num1: number, num2: number): number =>
+    limitNumber((num1 * num2) / 100);
 
   const stringifyDivision = (num1: string, num2?: string): string => {
     return num2 ? `${num1} ÷ ${num2} =` : `${num1} ÷`;
   };
-  const calculateDivision = (num1: number, num2: number): number => num1 / num2;
+  const calculateDivision = (num1: number, num2: number): number => limitNumber(num1 / num2);
 
   const stringifyMultiplication = (num1: string, num2?: string): string => {
     return num2 ? `${num1} × ${num2} =` : `${num1} ×`;
   };
-  const calculateMultiplication = (num1: number, num2: number): number => num1 * num2;
+  const calculateMultiplication = (num1: number, num2: number): number =>
+    limitNumber(num1 * num2);
 
   const stringifySubtraction = (num1: string, num2?: string): string => {
     return num2 ? `${num1} - ${num2} =` : `${num1} -`;
   };
-  const calculateSubtraction = (num1: number, num2: number): number => num1 - num2;
+  const calculateSubtraction = (num1: number, num2: number): number =>
+    limitNumber(num1 - num2);
 
   const stringifyAddition = (num1: string, num2?: string): string => {
     return num2 ? `${num1} + ${num2} =` : `${num1} +`;
   };
-  const calculateAddition = (num1: number, num2: number): number => num1 + num2;
+  const calculateAddition = (num1: number, num2: number): number => limitNumber(num1 + num2);
 
   const stringifyEquals = (num: string): string => `${num} =`;
 
@@ -544,7 +590,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             ref={minTextRef}
           ></div>
           <div
-            className="flex cursor-text select-text justify-end gap-x-[0.65rem] pr-[0.8rem] text-[2.9rem] font-semibold tracking-[0.003em] text-light-100"
+            className="flex h-[4.35rem] cursor-text select-text justify-end gap-x-[0.65rem] pr-[0.8rem] text-[2.9rem] font-semibold tracking-[0.003em] text-light-100"
             ref={maxTextRef}
           >
             <span>0</span>
