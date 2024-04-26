@@ -7,20 +7,25 @@ import { Rnd } from 'react-rnd';
 
 import './styles.css';
 
+type Nullable<T> = T | null;
+
 export const enum Colors {
   RED = 'red',
   ORANGE = 'orange',
 }
 
-const enum Operations {
-  PERCENT,
-  INVERSE,
-  SQUARE,
-  SQUARE_ROOT,
-  DIVISION,
-  MULTIPLICATION,
-  SUBTRACTION,
-  ADDITION,
+const enum SingleOperation {
+  INVERSE = 0,
+  SQUARE = 1,
+  SQUARE_ROOT = 2,
+}
+
+const enum DoubleOperation {
+  PERCENT = 3,
+  DIVISION = 4,
+  MULTIPLICATION = 5,
+  SUBTRACTION = 6,
+  ADDITION = 7,
 }
 
 export interface CalculatorProperties {
@@ -102,27 +107,77 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
 
   let result = '0';
 
-  let minResult = '';
+  let operation: Nullable<SingleOperation | DoubleOperation> = null;
 
   let firstNumber = '';
-  let operation: Operations | undefined;
+
   let secoundNumber = '';
 
-  const updateMaxText = (): void => {
-    console.log('Max text: ', result);
-  };
+  let minResult = '';
+
+  let savedResult = '';
 
   const updateMinText = (): void => {
-    console.log('Min text: ', minResult, ' Operation: ', operation);
+    const minTextElement = minTextRef.current!;
+
+    while (minTextElement.lastChild) {
+      minTextElement.removeChild(minTextElement.lastChild);
+    }
+
+    for (const item of minResult.split(' ')) {
+      const element = document.createElement('span');
+      element.textContent = item;
+      minTextElement.appendChild(element);
+    }
+  };
+
+  const updateMaxText = (): void => {
+    const maxTextElement = maxTextRef.current!;
+
+    while (maxTextElement.lastChild) {
+      maxTextElement.removeChild(maxTextElement.lastChild);
+    }
+
+    const spacing: string[] = [];
+    let commaIndex = result.indexOf(',');
+    const commaExists = commaIndex != -1;
+
+    for (let i = 0; i < result.length; ++i) {
+      const isFirst = i == 0;
+      const isSpacing = (commaExists ? commaIndex - i : result.length - i) % 3 == 0;
+      const isDecimalPart = commaExists && commaIndex <= i;
+      const isAfterNegative = result[0] == '-' && i == 1;
+
+      if ((isFirst || isSpacing) && !isDecimalPart && !isAfterNegative) {
+        spacing.push(result[i]);
+        continue;
+      }
+
+      spacing[spacing.length - 1] += result[i];
+    }
+
+    for (const item of spacing) {
+      const element = document.createElement('span');
+      element.textContent = item;
+      maxTextElement.appendChild(element);
+    }
   };
 
   const insertDigit = (digit: number): void => {
-    result = `${result != '0' ? result : ''}${digit}`;
+    savedResult = '';
+
+    if (result[0] == '-') {
+      result = `${result != '-0' ? result : '-'}${digit}`;
+    } else {
+      result = `${result != '0' ? result : ''}${digit}`;
+    }
 
     updateMaxText();
   };
 
   const insertComma = (): void => {
+    savedResult = '';
+
     if (result.includes(',')) return;
 
     result += ',';
@@ -131,120 +186,243 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
   };
 
   const switchSign = (): void => {
-    result = result[0] == '-' ? result.substring(1) : `-${result}`;
+    const niggaResult = savedResult.length > 0 ? savedResult : result;
+
+    result = niggaResult[0] == '-' ? niggaResult.substring(1) : `-${niggaResult}`;
+
+    if (savedResult.length > 0) savedResult = result;
 
     updateMaxText();
   };
 
   const backspace = (): void => {
+    const lastResult = savedResult.length > 0 ? savedResult : result;
+
     if (
-      result.length == 1 ||
-      (result.length == 2 && result[0] == '-' && result[1] != ',') ||
-      result == '-0,'
+      lastResult.length == 1 ||
+      (lastResult.length == 2 && lastResult[0] == '-' && lastResult[1] != ',') ||
+      lastResult == '-0,'
     ) {
       result = '0';
     } else {
-      result = result.substring(0, result.length - 1);
+      result = lastResult.substring(0, lastResult.length - 1);
     }
+
+    if (savedResult.length > 0) savedResult = result;
 
     updateMaxText();
   };
 
   const clearEntry = (): void => {
     result = '0';
+    savedResult = '';
 
     updateMaxText();
   };
 
   const clearAll = (): void => {
-    result = '0';
+    firstNumber = '';
+    secoundNumber = '';
+    operation = null;
+    minResult = '';
+    savedResult = '';
     updateMinText();
 
-    minResult = '';
-    operation = undefined;
+    result = '0';
     updateMaxText();
   };
 
-  const stringifyInverse = (num: string): string => `1/( ${num} )`;
-  const stringifySquare = (num: string): string => `sqr( ${num} )`;
-  const stringifySquareRoot = (num: string): string => `√( ${num} )`;
-  const stringifyPercent = (num1: string, num2?: string): string => {
-    return num2 ? `${num1} % ${num2}` : `${num1} %`;
-  };
-  const stringifyDivision = (num1: string, num2?: string): string => {
-    return num2 ? `${num1} ÷ ${num2}` : `${num1} ÷`;
-  };
-  const stringifyMultiplication = (num1: string, num2?: string): string => {
-    return num2 ? `${num1} × ${num2}` : `${num1} ×`;
-  };
-  const stringifySubtraction = (num1: string, num2?: string): string => {
-    return num2 ? `${num1} - ${num2}` : `${num1} -`;
-  };
-  const stringifyAddition = (num1: string, num2?: string): string => {
-    return num2 ? `${num1} + ${num2}` : `${num1} +`;
-  };
+  const stringifyInverse = (num: string): string => `1/( ${num} ) =`;
+  const calculateInverse = (num: number): number => 1 / num;
 
-  const evaluate = (operation: Operations, num1: number, num2: number): number => {
+  const stringifySquare = (num: string): string => `sqr( ${num} ) =`;
+  const calculateSquare = (num: number): number => num * num;
+
+  const stringifySquareRoot = (num: string): string => `√( ${num} ) =`;
+  const calculateSquareRoot = (num: number): number => Math.sqrt(num);
+
+  const stringifyPercent = (
+    operation: Nullable<SingleOperation | DoubleOperation>,
+    num1: string,
+    num2: string,
+  ): string => {
+    const percent = String((+num1.replace(',', '.') * +num2.replace(',', '.')) / 100).replace(
+      '.',
+      ',',
+    );
+
     switch (operation) {
-      case Operations.PERCENT:
-        return 0;
-      case Operations.INVERSE:
-        return 0;
-      case Operations.SQUARE:
-        return 0;
-      case Operations.SQUARE_ROOT:
-        return 0;
-      case Operations.DIVISION:
-        return num1 / num2;
-      case Operations.MULTIPLICATION:
-        return num1 * num2;
-      case Operations.SUBTRACTION:
-        return num1 - num2;
-      case Operations.ADDITION:
-        return num1 + num2;
+      case DoubleOperation.PERCENT:
+        return 'Error';
+      case DoubleOperation.DIVISION:
+        return `${num1} ÷ ${percent}`;
+      case DoubleOperation.MULTIPLICATION:
+        return `${num1} × ${percent}`;
+      case DoubleOperation.SUBTRACTION:
+        return `${num1} - ${percent}`;
+      case DoubleOperation.ADDITION:
+        return `${num1} + ${percent}`;
+
+      default:
+        return '0';
     }
   };
+  const calculatePercent = (num1: number, num2: number): number => (num1 * num2) / 100;
 
-  const handleOperation = (newOperation: Operations): void => {
-    if (operation) operation = newOperation;
+  const stringifyDivision = (num1: string, num2?: string): string => {
+    return num2 ? `${num1} ÷ ${num2} =` : `${num1} ÷`;
+  };
+  const calculateDivision = (num1: number, num2: number): number => num1 / num2;
+
+  const stringifyMultiplication = (num1: string, num2?: string): string => {
+    return num2 ? `${num1} × ${num2} =` : `${num1} ×`;
+  };
+  const calculateMultiplication = (num1: number, num2: number): number => num1 * num2;
+
+  const stringifySubtraction = (num1: string, num2?: string): string => {
+    return num2 ? `${num1} - ${num2} =` : `${num1} -`;
+  };
+  const calculateSubtraction = (num1: number, num2: number): number => num1 - num2;
+
+  const stringifyAddition = (num1: string, num2?: string): string => {
+    return num2 ? `${num1} + ${num2} =` : `${num1} +`;
+  };
+  const calculateAddition = (num1: number, num2: number): number => num1 + num2;
+
+  const stringifyEquals = (num: string): string => `${num} =`;
+
+  const handleOperation = (newOperation: SingleOperation | DoubleOperation): void => {
+    const stringNum = savedResult.length > 0 ? savedResult : result;
+    const numberNum = +stringNum.replace(',', '.');
+
+    switch (newOperation) {
+      case SingleOperation.INVERSE:
+        minResult = stringifyInverse(stringNum);
+        result = String(calculateInverse(numberNum)).replace('.', ',');
+
+        operation = null;
+        savedResult = result;
+        updateMaxText();
+        result = '0';
+
+        break;
+      case SingleOperation.SQUARE:
+        minResult = stringifySquare(stringNum);
+        result = String(calculateSquare(numberNum)).replace('.', ',');
+
+        operation = null;
+        savedResult = result;
+        updateMaxText();
+        result = '0';
+
+        break;
+      case SingleOperation.SQUARE_ROOT:
+        minResult = stringifySquareRoot(stringNum);
+        result = String(calculateSquareRoot(numberNum)).replace('.', ',');
+
+        operation = null;
+        savedResult = result;
+        updateMaxText();
+        result = '0';
+
+        break;
+
+      case DoubleOperation.PERCENT:
+        minResult = stringifyPercent(operation, firstNumber, stringNum);
+        result = String(calculatePercent(+firstNumber.replace(',', '.'), numberNum)).replace(
+          '.',
+          ',',
+        );
+
+        updateMaxText();
+
+        break;
+      case DoubleOperation.DIVISION:
+        minResult = stringifyDivision(stringNum);
+
+        operation = newOperation;
+        firstNumber = stringNum;
+
+        result = stringNum;
+        updateMaxText();
+        result = '0';
+
+        break;
+      case DoubleOperation.MULTIPLICATION:
+        minResult = stringifyMultiplication(stringNum);
+
+        operation = newOperation;
+        firstNumber = stringNum;
+
+        result = stringNum;
+        updateMaxText();
+        result = '0';
+
+        break;
+      case DoubleOperation.SUBTRACTION:
+        minResult = stringifySubtraction(stringNum);
+
+        operation = newOperation;
+        firstNumber = stringNum;
+
+        result = stringNum;
+        updateMaxText();
+        result = '0';
+
+        break;
+      case DoubleOperation.ADDITION:
+        minResult = stringifyAddition(stringNum);
+
+        operation = newOperation;
+        firstNumber = stringNum;
+
+        result = stringNum;
+        updateMaxText();
+        result = '0';
+
+        break;
+    }
+
     updateMinText();
-
-    result = '0';
-    updateMaxText();
   };
 
   const handleEquals = (): void => {
+    if (savedResult.length > 0) firstNumber = savedResult;
+    else secoundNumber = result;
+
+    const num1 = +firstNumber.replace(',', '.');
+    const num2 = +secoundNumber.replace(',', '.');
+
     switch (operation) {
-      case Operations.PERCENT:
+      case DoubleOperation.PERCENT:
+        minResult = '0';
+        result = '0';
         break;
-      case Operations.INVERSE:
+      case DoubleOperation.DIVISION:
+        minResult = stringifyDivision(firstNumber, secoundNumber);
+        result = String(calculateDivision(num1, num2)).replace('.', ',');
         break;
-      case Operations.SQUARE:
+      case DoubleOperation.MULTIPLICATION:
+        minResult = stringifyMultiplication(firstNumber, secoundNumber);
+        result = String(calculateMultiplication(num1, num2)).replace('.', ',');
         break;
-      case Operations.SQUARE_ROOT:
+      case DoubleOperation.SUBTRACTION:
+        minResult = stringifySubtraction(firstNumber, secoundNumber);
+        result = String(calculateSubtraction(num1, num2)).replace('.', ',');
         break;
-      case Operations.DIVISION:
-        minResult = stringifyDivision(firstNumber, result);
-        break;
-      case Operations.MULTIPLICATION:
-        minResult = stringifyMultiplication(firstNumber, result);
-        break;
-      case Operations.SUBTRACTION:
-        minResult = stringifySubtraction(firstNumber, result);
-        break;
-      case Operations.ADDITION:
-        minResult = stringifyAddition(firstNumber, result);
+      case DoubleOperation.ADDITION:
+        minResult = stringifyAddition(firstNumber, secoundNumber);
+        result = String(calculateAddition(num1, num2)).replace('.', ',');
         break;
 
       default:
-        throw new Error(`unrecognized operation: ${operation}`);
+        minResult = stringifyEquals(result);
+        break;
     }
 
     updateMinText();
 
-    const num1 = +firstNumber.replace(',', '.');
-    const num2 = +result.replace(',', '.');
-    result = String(evaluate(operation, num1, num2)).replace('.', ',');
+    savedResult = result;
     updateMaxText();
     result = '0';
   };
@@ -351,9 +529,9 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div className="mt-[4px] flex flex-col">
+        <div className="mt-[0.3rem] flex flex-col">
           <div
-            className="flex h-[1.1rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-500"
+            className="flex h-[1.05rem] justify-end gap-x-[3px] pr-[18px] text-sm font-medium text-light-500"
             ref={minTextRef}
           ></div>
           <div
@@ -391,7 +569,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           <button
             className="operator font-extralight"
             type="button"
-            onClick={() => handleOperation(Operations.PERCENT)}
+            onClick={() => handleOperation(DoubleOperation.PERCENT)}
           >
             %
           </button>
@@ -414,14 +592,14 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             type="button"
             title="1 Divided by X"
             data-name="one_over_x"
-            onClick={() => handleOperation(Operations.INVERSE)}
+            onClick={() => handleOperation(SingleOperation.INVERSE)}
           >
             ⅟<i className="text-sm">x</i>
           </button>
           <button
             className="operator text-sm"
             type="button"
-            onClick={() => handleOperation(Operations.SQUARE)}
+            onClick={() => handleOperation(SingleOperation.SQUARE)}
           >
             <i className="mr-[0.2rem]">x</i>
             <sup>2</sup>
@@ -430,7 +608,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             className="operator flex items-center justify-center"
             type="button"
             title="Square root of x"
-            onClick={() => handleOperation(Operations.SQUARE_ROOT)}
+            onClick={() => handleOperation(SingleOperation.SQUARE_ROOT)}
           >
             <svg
               className="h-3 w-3 fill-light-100 stroke-light-100"
@@ -446,7 +624,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           <button
             className="operator text-2xl font-light"
             type="button"
-            onClick={() => handleOperation(Operations.DIVISION)}
+            onClick={() => handleOperation(DoubleOperation.DIVISION)}
           >
             ÷
           </button>
@@ -462,7 +640,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           <button
             className="operator text-2xl font-light"
             type="button"
-            onClick={() => handleOperation(Operations.MULTIPLICATION)}
+            onClick={() => handleOperation(DoubleOperation.MULTIPLICATION)}
           >
             ×
           </button>
@@ -479,7 +657,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             className="operator"
             type="button"
             title="Subtract"
-            onClick={() => handleOperation(Operations.SUBTRACTION)}
+            onClick={() => handleOperation(DoubleOperation.SUBTRACTION)}
           >
             <Image
               className="m-auto opacity-90"
@@ -501,7 +679,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           <button
             className="operator"
             type="button"
-            onClick={() => handleOperation(Operations.ADDITION)}
+            onClick={() => handleOperation(DoubleOperation.ADDITION)}
           >
             +
           </button>
