@@ -147,8 +147,17 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       const isSpacing = (commaExists ? commaIndex - i : result.length - i) % 3 == 0;
       const isDecimalPart = commaExists && commaIndex <= i;
       const isAfterNegative = result[0] == '-' && i == 1;
+      const isThisStupidPlusNotation = result[i] == '+' || result[i] == 'e';
+      const isInfinity = result == 'Infinity' || result == '-Infinity';
 
-      if ((isFirst || isSpacing) && !isDecimalPart && !isAfterNegative) {
+      if (
+        (isSpacing &&
+          !isDecimalPart &&
+          !isAfterNegative &&
+          !isThisStupidPlusNotation &&
+          !isInfinity) ||
+        isFirst
+      ) {
         spacing.push(result[i]);
         continue;
       }
