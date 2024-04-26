@@ -12,36 +12,15 @@ export const enum Colors {
   ORANGE = 'orange',
 }
 
-const enum BUTTON_TYPE {
-  PERCENT = 'percent',
-  CLEAR_ENTRY = 'clear_entry',
-  CLEAR = 'clear',
-  REMOVE_LAST = 'remove_last',
-
-  ONE_OVER_X = 'one_over_x',
-  SQUARE = 'square',
-  SQRT = 'sqrt',
-  DIVISION = 'division',
-
-  DIGIT_7 = 'digit_7',
-  DIGIT_8 = 'digit_8',
-  DIGIT_9 = 'digit_9',
-  MULTIPLICATION = 'multiplication',
-
-  DIGIT_4 = 'digit_4',
-  DIGIT_5 = 'digit_5',
-  DIGIT_6 = 'digit_6',
-  SUBTRACTION = 'subtraction',
-
-  DIGIT_1 = 'digit_1',
-  DIGIT_2 = 'digit_2',
-  DIGIT_3 = 'digit_3',
-  ADDITION = 'addition',
-
-  SWITCH_SIGN = 'switch_sign',
-  DIGIT_0 = 'digit_0',
-  DECIMAL = 'decimal',
-  EQUALS = 'equals',
+const enum Operations {
+  PERCENT,
+  INVERSE,
+  SQUARE,
+  SQUARE_ROOT,
+  DIVISION,
+  MULTIPLICATION,
+  SUBTRACTION,
+  ADDITION,
 }
 
 export interface CalculatorProperties {
@@ -56,11 +35,12 @@ const minimumWidth = 322;
 const minimumHeight = 501;
 
 export const Windows11Calculator = (props: CalculatorProperties): ReactElement => {
-  const [width] = useState(props.width ?? minimumWidth);
-  const [height] = useState(props.height ?? minimumHeight);
-  const [x] = useState(props.x ?? (window.innerWidth - width) / 2);
-  const [y] = useState(props.y ?? (window.innerHeight - height) / 2);
+  const [width, setWidth] = useState(props.width ?? minimumWidth);
+  const [height, setHeight] = useState(props.height ?? minimumHeight);
+  const [x, setX] = useState(props.x ?? 0);
+  const [y, setY] = useState(props.y ?? 0);
   const [color] = useState(props.color ?? Colors.RED);
+  const [visible, setVisible] = useState(false);
 
   const [draggable, setDraggable] = useState(false);
 
@@ -68,13 +48,17 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
 
   const toolbarRef = useRef<HTMLDivElement>(null);
   const toolbarButtonsRef = useRef<HTMLDivElement>(null);
-  const minimizeRef = useRef<HTMLButtonElement>(null);
-  const maximizeRef = useRef<HTMLButtonElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
 
   const minTextRef = useRef<HTMLDivElement>(null);
   const maxTextRef = useRef<HTMLDivElement>(null);
-  const buttonsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setX((window.innerWidth - width) / 2);
+    setY((window.innerHeight - height) / 2);
+
+    setVisible(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const calculator = calculatorRef.current;
@@ -114,251 +98,178 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
       element.style.borderColor = '';
       element.style.boxShadow = '';
     });
-  });
-
-  useEffect(() => {
-    if (!buttonsRef.current) return;
-
-    const buttons = buttonsRef.current.querySelectorAll('button');
-    const maxText = maxTextRef.current!;
-    const minText = minTextRef.current!;
-
-    let result = '0';
-    let negative = false;
-
-    let firstNumber = '';
-    let operation = '';
-    let removeAll = false;
-
-    const insertSymbol = (symbol: string): void => {
-      if (removeAll) {
-        while (minText.firstChild) {
-          minText.removeChild(minText.lastChild as Node);
-        }
-
-        removeAll = false;
-      }
-
-      if (symbol == '-') {
-        negative = !negative;
-      } else {
-        result = `${result == '0' && symbol != ',' ? '' : result}${symbol}`;
-      }
-
-      while (maxText.firstChild) {
-        maxText.removeChild(maxText.lastChild as Node);
-      }
-
-      let lastChild: HTMLSpanElement | null = null;
-      if (negative) {
-        const element = document.createElement('span');
-        element.textContent = '-';
-        maxText.appendChild(element);
-        lastChild = element;
-      }
-
-      let seenComma = false;
-      for (let i = 0; i < result.length; ++i) {
-        if (result[i] == ',') seenComma = true;
-
-        const createNewElement =
-          (((result.indexOf(',') == -1 ? result.length : result.indexOf(',')) - i) % 3 == 0 ||
-            i == 0) &&
-          !seenComma &&
-          !(negative && i == 0);
-
-        if (createNewElement) {
-          const element = document.createElement('span');
-          element.textContent = result[i];
-          maxText.appendChild(element);
-          lastChild = element;
-
-          continue;
-        }
-
-        lastChild!.textContent += result[i];
-      }
-    };
-
-    const handleOperation = (symbol: string): void => {
-      while (minText.firstChild) {
-        minText.removeChild(minText.lastChild as Node);
-      }
-
-      while (maxText.firstChild) {
-        maxText.removeChild(maxText.lastChild as Node);
-      }
-
-      const numberElement = document.createElement('span');
-      numberElement.textContent = `${negative ? '-' : ''}${result}`;
-      minText.appendChild(numberElement);
-
-      const symbolElement = document.createElement('span');
-      symbolElement.textContent = symbol;
-      minText.appendChild(symbolElement);
-
-      firstNumber = `${negative ? '-' : ''}${result}`;
-      operation = symbol;
-      result = '';
-      negative = false;
-      insertSymbol('0');
-
-      result = '';
-      negative = false;
-    };
-
-    const clearEntry = (): void => {
-      result = '';
-      negative = false;
-      insertSymbol('0');
-    };
-
-    const evaluate = (num1: number, operator: string, num2: number): number => {
-      switch (operator) {
-        case '+':
-          return num1 + num2;
-        case '-':
-          return num1 - num2;
-        case '×':
-          return num1 * num2;
-        case '÷':
-          return num1 / num2;
-
-        default:
-          return 69;
-      }
-    };
-
-    const handleEquals = (): void => {
-      const numberElement = document.createElement('span');
-      numberElement.textContent = `${negative ? '-' : ''}${result}`;
-      minText.appendChild(numberElement);
-
-      const equalsElement = document.createElement('span');
-      equalsElement.textContent = '=';
-      minText.appendChild(equalsElement);
-
-      const stringResult = String(
-        evaluate(
-          +firstNumber.replace(',', '.'),
-          operation,
-          +`${negative ? '-' : ''}${result}`.replace(',', '.'),
-        ),
-      );
-
-      clearEntry();
-
-      for (const char of stringResult) {
-        insertSymbol(char == '.' ? ',' : char);
-      }
-
-      removeAll = true;
-    };
-
-    buttons.forEach(button => {
-      const buttonName = button.getAttribute('data-name') as BUTTON_TYPE;
-
-      button.onclick = () => {
-        switch (buttonName) {
-          case BUTTON_TYPE.PERCENT:
-            break;
-          case BUTTON_TYPE.CLEAR_ENTRY:
-            clearEntry();
-            break;
-          case BUTTON_TYPE.CLEAR:
-            firstNumber = '';
-            operation = '';
-            result = '';
-            negative = false;
-            insertSymbol('0');
-            break;
-          case BUTTON_TYPE.REMOVE_LAST:
-            if (result.length > 1) {
-              result = result.slice(0, result.length - 1);
-              insertSymbol('');
-            } else {
-              result = '0';
-              negative = false;
-              insertSymbol('0');
-            }
-            break;
-          case BUTTON_TYPE.ONE_OVER_X:
-            break;
-          case BUTTON_TYPE.SQUARE:
-            break;
-          case BUTTON_TYPE.SQRT:
-            break;
-          case BUTTON_TYPE.DIVISION:
-            handleOperation('÷');
-            break;
-          case BUTTON_TYPE.DIGIT_7:
-            insertSymbol('7');
-            break;
-          case BUTTON_TYPE.DIGIT_8:
-            insertSymbol('8');
-            break;
-          case BUTTON_TYPE.DIGIT_9:
-            insertSymbol('9');
-            break;
-          case BUTTON_TYPE.MULTIPLICATION:
-            handleOperation('×');
-            break;
-          case BUTTON_TYPE.DIGIT_4:
-            insertSymbol('4');
-            break;
-          case BUTTON_TYPE.DIGIT_5:
-            insertSymbol('5');
-            break;
-          case BUTTON_TYPE.DIGIT_6:
-            insertSymbol('6');
-            break;
-          case BUTTON_TYPE.SUBTRACTION:
-            handleOperation('-');
-            break;
-          case BUTTON_TYPE.DIGIT_1:
-            insertSymbol('1');
-            break;
-          case BUTTON_TYPE.DIGIT_2:
-            insertSymbol('2');
-            break;
-          case BUTTON_TYPE.DIGIT_3:
-            insertSymbol('3');
-            break;
-          case BUTTON_TYPE.ADDITION:
-            handleOperation('+');
-            break;
-          case BUTTON_TYPE.SWITCH_SIGN:
-            if (result != '0') {
-              insertSymbol('-');
-            }
-            break;
-          case BUTTON_TYPE.DIGIT_0:
-            insertSymbol('0');
-            break;
-          case BUTTON_TYPE.DECIMAL:
-            if (!result.includes(',')) insertSymbol(',');
-            break;
-          case BUTTON_TYPE.EQUALS:
-            if (firstNumber != '' && operation != '') {
-              handleEquals();
-            }
-            break;
-        }
-
-        console.log(result, negative, operation, firstNumber);
-      };
-    });
   }, []);
+
+  let result = '0';
+
+  let minResult = '';
+
+  let firstNumber = '';
+  let operation: Operations | undefined;
+  let secoundNumber = '';
+
+  const updateMaxText = (): void => {
+    console.log('Max text: ', result);
+  };
+
+  const updateMinText = (): void => {
+    console.log('Min text: ', minResult, ' Operation: ', operation);
+  };
+
+  const insertDigit = (digit: number): void => {
+    result = `${result != '0' ? result : ''}${digit}`;
+
+    updateMaxText();
+  };
+
+  const insertComma = (): void => {
+    if (result.includes(',')) return;
+
+    result += ',';
+
+    updateMaxText();
+  };
+
+  const switchSign = (): void => {
+    result = result[0] == '-' ? result.substring(1) : `-${result}`;
+
+    updateMaxText();
+  };
+
+  const backspace = (): void => {
+    if (
+      result.length == 1 ||
+      (result.length == 2 && result[0] == '-' && result[1] != ',') ||
+      result == '-0,'
+    ) {
+      result = '0';
+    } else {
+      result = result.substring(0, result.length - 1);
+    }
+
+    updateMaxText();
+  };
+
+  const clearEntry = (): void => {
+    result = '0';
+
+    updateMaxText();
+  };
+
+  const clearAll = (): void => {
+    result = '0';
+    updateMinText();
+
+    minResult = '';
+    operation = undefined;
+    updateMaxText();
+  };
+
+  const stringifyInverse = (num: string): string => `1/( ${num} )`;
+  const stringifySquare = (num: string): string => `sqr( ${num} )`;
+  const stringifySquareRoot = (num: string): string => `√( ${num} )`;
+  const stringifyPercent = (num1: string, num2?: string): string => {
+    return num2 ? `${num1} % ${num2}` : `${num1} %`;
+  };
+  const stringifyDivision = (num1: string, num2?: string): string => {
+    return num2 ? `${num1} ÷ ${num2}` : `${num1} ÷`;
+  };
+  const stringifyMultiplication = (num1: string, num2?: string): string => {
+    return num2 ? `${num1} × ${num2}` : `${num1} ×`;
+  };
+  const stringifySubtraction = (num1: string, num2?: string): string => {
+    return num2 ? `${num1} - ${num2}` : `${num1} -`;
+  };
+  const stringifyAddition = (num1: string, num2?: string): string => {
+    return num2 ? `${num1} + ${num2}` : `${num1} +`;
+  };
+
+  const evaluate = (operation: Operations, num1: number, num2: number): number => {
+    switch (operation) {
+      case Operations.PERCENT:
+        return 0;
+      case Operations.INVERSE:
+        return 0;
+      case Operations.SQUARE:
+        return 0;
+      case Operations.SQUARE_ROOT:
+        return 0;
+      case Operations.DIVISION:
+        return num1 / num2;
+      case Operations.MULTIPLICATION:
+        return num1 * num2;
+      case Operations.SUBTRACTION:
+        return num1 - num2;
+      case Operations.ADDITION:
+        return num1 + num2;
+    }
+  };
+
+  const handleOperation = (newOperation: Operations): void => {
+    if (operation) operation = newOperation;
+    updateMinText();
+
+    result = '0';
+    updateMaxText();
+  };
+
+  const handleEquals = (): void => {
+    switch (operation) {
+      case Operations.PERCENT:
+        break;
+      case Operations.INVERSE:
+        break;
+      case Operations.SQUARE:
+        break;
+      case Operations.SQUARE_ROOT:
+        break;
+      case Operations.DIVISION:
+        minResult = stringifyDivision(firstNumber, result);
+        break;
+      case Operations.MULTIPLICATION:
+        minResult = stringifyMultiplication(firstNumber, result);
+        break;
+      case Operations.SUBTRACTION:
+        minResult = stringifySubtraction(firstNumber, result);
+        break;
+      case Operations.ADDITION:
+        minResult = stringifyAddition(firstNumber, result);
+        break;
+
+      default:
+        throw new Error(`unrecognized operation: ${operation}`);
+    }
+
+    updateMinText();
+
+    const num1 = +firstNumber.replace(',', '.');
+    const num2 = +result.replace(',', '.');
+    result = String(evaluate(operation, num1, num2)).replace('.', ',');
+    updateMaxText();
+    result = '0';
+  };
 
   return (
     <Rnd
-      default={{ width: width, height: height, x, y }}
+      position={{ x, y }}
+      size={{ width, height }}
       minWidth={minimumWidth}
       minHeight={minimumHeight}
       disableDragging={!draggable}
+      onDragStop={(_, data) => {
+        setX(data.x);
+        setY(data.y);
+      }}
+      onResizeStop={(e, dir, element, delta, position) => {
+        setWidth(width + delta.width);
+        setHeight(height + delta.height);
+
+        setX(position.x);
+        setY(position.y);
+      }}
     >
       <div
-        className="flex h-full w-full cursor-default select-none flex-col rounded-lg border border-dark-200 bg-dark-700 shadow-[0px_15px_60px_-15px_#000]"
+        className={`${visible ? 'opacity-100' : 'pointer-events-none opacity-0'} flex h-full w-full cursor-default select-none flex-col rounded-lg border border-dark-200 bg-dark-700 shadow-[0px_15px_60px_-15px_#000] transition-opacity duration-150 ease-linear`}
         ref={calculatorRef}
       >
         <div className="flex h-[53.5px] pl-[18px]" ref={toolbarRef}>
@@ -372,12 +283,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             className="ml-auto grid [grid-template-columns:repeat(3,1fr)]"
             ref={toolbarButtonsRef}
           >
-            <button
-              className="flex w-[46px] hover:bg-dark-500"
-              type="button"
-              title="Minimize"
-              ref={minimizeRef}
-            >
+            <button className="flex w-[46px] hover:bg-dark-500" type="button" title="Minimize">
               <Image
                 className="m-auto invert"
                 src="/icons/minimize.png"
@@ -386,12 +292,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
                 alt="Minimize Icon"
               />
             </button>
-            <button
-              className="flex hover:bg-dark-500"
-              type="button"
-              title="Maximize"
-              ref={maximizeRef}
-            >
+            <button className="flex hover:bg-dark-500" type="button" title="Maximize">
               <Image
                 className="m-auto invert"
                 src="/icons/square.png"
@@ -404,7 +305,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
               className="flex rounded-tr-lg hover:bg-red"
               type="button"
               title="Close"
-              ref={closeRef}
+              onClick={() => setVisible(false)}
             >
               <Image
                 className="m-auto invert"
@@ -486,24 +387,25 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
           </div>
         </div>
 
-        <div
-          className="mt-[0.08rem] grid h-full grid-rows-6 gap-[0.125rem] px-1 pb-1 pt-[0.085rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md"
-          ref={buttonsRef}
-        >
-          <button className="operator font-extralight" type="button" data-name="percent">
+        <div className="mt-[0.08rem] grid h-full grid-rows-6 gap-[0.125rem] px-1 pb-1 pt-[0.085rem] text-lg text-light-100 [grid-template-columns:repeat(4,1fr)] *:rounded-md">
+          <button
+            className="operator font-extralight"
+            type="button"
+            onClick={() => handleOperation(Operations.PERCENT)}
+          >
             %
           </button>
-          <button className="operator text-sm" type="button" data-name="clear_entry">
+          <button className="operator text-sm" type="button" onClick={clearEntry}>
             CE
           </button>
-          <button className="operator text-sm" type="button" data-name="clear">
+          <button className="operator text-sm" type="button" onClick={clearAll}>
             C
           </button>
           <button
             className="operator grid place-items-center"
             type="button"
             title="Clear last digit"
-            data-name="remove_last"
+            onClick={backspace}
           >
             <Image src="/icons/clear.png" width={15} height={15} alt="Clear" />
           </button>
@@ -512,10 +414,15 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             type="button"
             title="1 Divided by X"
             data-name="one_over_x"
+            onClick={() => handleOperation(Operations.INVERSE)}
           >
             ⅟<i className="text-sm">x</i>
           </button>
-          <button className="operator text-sm" type="button" data-name="square">
+          <button
+            className="operator text-sm"
+            type="button"
+            onClick={() => handleOperation(Operations.SQUARE)}
+          >
             <i className="mr-[0.2rem]">x</i>
             <sup>2</sup>
           </button>
@@ -523,7 +430,7 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             className="operator flex items-center justify-center"
             type="button"
             title="Square root of x"
-            data-name="sqrt"
+            onClick={() => handleOperation(Operations.SQUARE_ROOT)}
           >
             <svg
               className="h-3 w-3 fill-light-100 stroke-light-100"
@@ -536,35 +443,44 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
             </svg>
             <span className="relative right-[0.3rem] text-sm">x</span>
           </button>
-          <button className="operator text-2xl font-light" type="button" data-name="division">
+          <button
+            className="operator text-2xl font-light"
+            type="button"
+            onClick={() => handleOperation(Operations.DIVISION)}
+          >
             ÷
           </button>
-          <button className="number" type="button" data-name="digit_7">
+          <button className="number" type="button" onClick={() => insertDigit(7)}>
             7
           </button>
-          <button className="number" type="button" data-name="digit_8">
+          <button className="number" type="button" onClick={() => insertDigit(8)}>
             8
           </button>
-          <button className="number" type="button" data-name="digit_9">
+          <button className="number" type="button" onClick={() => insertDigit(9)}>
             9
           </button>
           <button
             className="operator text-2xl font-light"
             type="button"
-            data-name="multiplication"
+            onClick={() => handleOperation(Operations.MULTIPLICATION)}
           >
             ×
           </button>
-          <button className="number" type="button" data-name="digit_4">
+          <button className="number" type="button" onClick={() => insertDigit(4)}>
             4
           </button>
-          <button className="number" type="button" data-name="digit_5">
+          <button className="number" type="button" onClick={() => insertDigit(5)}>
             5
           </button>
-          <button className="number" type="button" data-name="digit_6">
+          <button className="number" type="button" onClick={() => insertDigit(6)}>
             6
           </button>
-          <button className="operator" type="button" title="Subtract" data-name="subtraction">
+          <button
+            className="operator"
+            type="button"
+            title="Subtract"
+            onClick={() => handleOperation(Operations.SUBTRACTION)}
+          >
             <Image
               className="m-auto opacity-90"
               src="/icons/minus.png"
@@ -573,32 +489,36 @@ export const Windows11Calculator = (props: CalculatorProperties): ReactElement =
               alt="Minimize Icon"
             />
           </button>
-          <button className="number" type="button" data-name="digit_1">
+          <button className="number" type="button" onClick={() => insertDigit(1)}>
             1
           </button>
-          <button className="number" type="button" data-name="digit_2">
+          <button className="number" type="button" onClick={() => insertDigit(2)}>
             2
           </button>
-          <button className="number" type="button" data-name="digit_3">
+          <button className="number" type="button" onClick={() => insertDigit(3)}>
             3
           </button>
-          <button className="operator" type="button" data-name="addition">
+          <button
+            className="operator"
+            type="button"
+            onClick={() => handleOperation(Operations.ADDITION)}
+          >
             +
           </button>
-          <button className="number font-medium" type="button" data-name="switch_sign">
+          <button className="number font-medium" type="button" onClick={switchSign}>
             <sup>+</sup>/<sub className="text-xl font-bold">-</sub>
           </button>
-          <button className="number" type="button" data-name="digit_0">
+          <button className="number" type="button" onClick={() => insertDigit(0)}>
             0
           </button>
-          <button className="number" type="button" data-name="decimal">
+          <button className="number" type="button" onClick={insertComma}>
             ,
           </button>
           <button
             className="special grid place-items-center"
             type="button"
             title="Equals"
-            data-name="equals"
+            onClick={handleEquals}
           >
             <Image src="/icons/equals.png" width={20} height={20} alt="Equals Icon" />
           </button>
